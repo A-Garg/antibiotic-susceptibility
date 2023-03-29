@@ -7,11 +7,24 @@ Creating a model of antimicrobial susceptibility based on local risk factors
 * `antimicrobial_imputation.ipynb`: Uses imputation rules to fill in antimicrobial susceptibility patterns (e.g. methicillin-susceptible *S. aureus* should also be susceptible to piperacillin-tazobactam).
 * `missingness.ipynb`: Calculates the amount of missing susceptibility data for each antibiotic
 * `regression.ipynb`: The actual logistic regression model for antibiotic susceptibility
+* `regression2.ipynb`: A shorter version of `regression.ipynb` that suppresses some output for easier readability
+
+
+### Pickle files
+For each antibiotic or combination antibiotic, there is a [pickle](https://docs.python.org/3/library/pickle.html) file that stores the regression model so it can be used elsewhere.
+
+
+### Shiny files
+* `shiny_regression.py`: creates a web interface from which to use the regression models
+* `shiny_regression_combination.py`: a web interface specifically for the combination of piperacillin-tazobactam and tobramycin
+
 
 ### Other Files
 * `AMR_imputation_6.xlsx`: Source data
 
 ## Example output
+
+### Regression model
 
 ```
 Regression model for Cefazolin
@@ -52,3 +65,10 @@ Bin minimum   S count  R count  S percentage
        0.90         0        0           nan
 ```
 ![Cefazolin output](https://user-images.githubusercontent.com/31163077/198854338-c4f57208-880c-4b2d-ab50-9af27394b30d.png)
+
+
+### Shiny
+![image](https://user-images.githubusercontent.com/31163077/228419993-8e4012fa-b8d4-4b5b-97e9-61252aff7832.png)
+
+
+
