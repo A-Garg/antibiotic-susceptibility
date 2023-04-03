@@ -16,7 +16,6 @@ For each antibiotic or combination antibiotic, there is a [pickle](https://docs.
 
 ### Shiny files
 * `shiny_regression.py`: creates a web interface from which to use the regression models
-* `shiny_regression_combination.py`: a web interface specifically for the combination of piperacillin-tazobactam and tobramycin
 
 
 ### Other Files
