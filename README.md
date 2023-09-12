@@ -3,17 +3,20 @@ Creating a model of antimicrobial susceptibility based on local risk factors
 
 ## Files
 
-### iPython Notebooks
+### iPython notebooks
 * `antimicrobial_imputation.ipynb`: Uses imputation rules to fill in antimicrobial susceptibility patterns (e.g. methicillin-susceptible *S. aureus* should also be susceptible to piperacillin-tazobactam).
-* `missingness.ipynb`: Calculates the amount of missing susceptibility data for each antibiotic
-* `regression.ipynb`: The actual logistic regression model for antibiotic susceptibility
+* `missingness.ipynb`: Calculates the amount of missing susceptibility data for each antibiotic.
+* `regression.ipynb`: Creates logistic regression models for antibiotic susceptibility, and saves them in [pickle](https://docs.python.org/3/library/pickle.html) files.
+
+### Shiny Folder
+* `shiny_regression.py`: Creates an interactive visual interface for the regression model, e.g. https://akhilgarg.shinyapps.io/model/
 
 ### Other Files
 * `AMR_imputation_6.xlsx`: Source data
-* `regression.html`: iPython notebook with figure visualizations
 
 ## Example output
 
+### Regression notebook
 ```
 Regression model for Cefazolin
 Logistic Regression Coefficients
@@ -31,3 +34,8 @@ RecentHospitalization                      -0.1632
 SexCat                                     -0.4171`
 ```
 ![Ceftriaxone Output](https://user-images.githubusercontent.com/31163077/182207506-6cba5e0c-4dfa-40fc-bd01-fb316e8af6a1.png)
+
+### Shiny implementation
+Reactive version at: https://akhilgarg.shinyapps.io/model/
+![image](https://github.com/A-Garg/antibiotic-susceptibility/assets/31163077/b02a7519-8e3d-4c82-93d5-aac742101e46)
+
