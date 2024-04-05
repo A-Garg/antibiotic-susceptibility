@@ -10,7 +10,6 @@
 from shiny import App, render, ui
 import pickle
 import warnings
-warnings.simplefilter(action='ignore', category=FutureWarning)
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -20,6 +19,9 @@ import matplotlib.pyplot as plt
 antibiotic_list = ['Meropenem','Piptaz',
                    'Ceftazidime','Ceftriaxone',
                    'Ciprofloxacin','TMPSMX','Cefazolin','Piptaz_or_Tobramycin']
+
+# New antibiotic list as of 2024-03-26
+antibiotic_list = ['Meropenem','Piptaz','Ceftazidime','Ceftriaxone','Ciprofloxacin']
 
 antibiotic_dict = {'Pencillins':     {'Piptaz':'Piperacillin-tazobactam'},
                    'Cephalosporins': {'Cefazolin':'Cefazolin','Ceftriaxone':'Ceftriaxone','Ceftazidime':'Ceftazidime'},
@@ -54,6 +56,8 @@ age_categories = ['<40',  '40-44','45-49','50-54','55-59',
                   '60-64','65-69','70-74','75-79','80-84',
                   '85-89','>90'
                  ]
+
+with open('age_scaler.pickle','rb') as f: age_StandardScaler = pickle.load(f)
                  
 prior_resistance_history = {0:'No isolate or unknown',1:'Susceptible',2:'Nonsusceptible'}  
 
@@ -70,14 +74,10 @@ def susceptibility_outputs_f(input):
 
         # Create a DataFrame of regression inputs that are all zeros
         regression_inputs = ['hosp_Sunnybrook','hosp_TOH', 
-                             'age_40-45','age_45-50','age_50-55','age_55-60',
-                             'age_60-65','age_65-70','age_70-75','age_75-80',
-                             'age_80-85','age_85-90','age_>90',
-                             'sex_M',
+                             'age_scaled','sex_M',
                              
                              'acquisition_ICU','acquisition_ward',
-                             'adm_service_surgical',
-                             'RecentHospitalization','ICUExposure',
+                             'adm_service_surgical','RecentHospitalization',
                              
                              'Prior'+antibiotic_classes[antibiotic],
                              'PriorNon'+antibiotic_classes[antibiotic],
@@ -96,26 +96,26 @@ def susceptibility_outputs_f(input):
         elif input.Acquisition()=='ICU':
             df['acquisition_ICU'] = 1
         
+        warnings.simplefilter(action='ignore', category=UserWarning)
         # A match-case structure may be better here
-        if   input.Age()=='<40'  : pass
-        elif input.Age()=='40-44': df['age_40-45'] = 1
-        elif input.Age()=='45-49': df['age_45-50'] = 1
-        elif input.Age()=='50-54': df['age_50-55'] = 1
-        elif input.Age()=='55-59': df['age_55-60'] = 1
-        elif input.Age()=='60-64': df['age_60-65'] = 1
-        elif input.Age()=='65-69': df['age_65-70'] = 1
-        elif input.Age()=='70-74': df['age_70-75'] = 1
-        elif input.Age()=='75-79': df['age_75-80'] = 1
-        elif input.Age()=='80-84': df['age_80-85'] = 1
-        elif input.Age()=='85-89': df['age_85-90'] = 1
-        elif input.Age()=='>90'  : df['age_>90']   = 1
+        if   input.Age()=='<40'  : df['age_scaled'] = age_StandardScaler.transform([[30]])
+        elif input.Age()=='40-44': df['age_scaled'] = age_StandardScaler.transform([[42.5]])
+        elif input.Age()=='45-49': df['age_scaled'] = age_StandardScaler.transform([[47.5]])
+        elif input.Age()=='50-54': df['age_scaled'] = age_StandardScaler.transform([[52.5]])
+        elif input.Age()=='55-59': df['age_scaled'] = age_StandardScaler.transform([[57.5]])
+        elif input.Age()=='60-64': df['age_scaled'] = age_StandardScaler.transform([[62.5]])
+        elif input.Age()=='65-69': df['age_scaled'] = age_StandardScaler.transform([[67.5]])
+        elif input.Age()=='70-74': df['age_scaled'] = age_StandardScaler.transform([[72.5]])
+        elif input.Age()=='75-79': df['age_scaled'] = age_StandardScaler.transform([[77.5]])
+        elif input.Age()=='80-84': df['age_scaled'] = age_StandardScaler.transform([[82.5]])
+        elif input.Age()=='85-89': df['age_scaled'] = age_StandardScaler.transform([[87.5]])
+        elif input.Age()=='>90'  : df['age_scaled'] = age_StandardScaler.transform([[96]])
 
         
         if input.SexCat()=='Male': df['sex_M'] = 1
         if input.MedVsSurgAdmission()=='Surgical': df['adm_service_surgical'] = 1
         
         df['RecentHospitalization'] = input.RecentHospitalization()
-        df['ICUExposure']           = input.ICUExposure()
         df['ClinicalESBL']          = input.ClinicalESBL()
         
                              
@@ -183,7 +183,7 @@ def susceptibility_outputs_f(input):
             
         with open(antibiotic+'.pickle','rb') as f:
             reg = pickle.load(f)
-        
+                
         susceptibility_outputs.append((antibiotic,reg.predict_proba(df)[0][0]*100))
     
     # Convert to a pandas dataframe and add column names
@@ -217,31 +217,30 @@ app_ui = ui.page_fluid(
             ui.h4('Clinical factors'),
             
             ui.input_radio_buttons('Acquisition','Acquisition:',['Community','Hospital non-ICU','ICU'],inline=True),
-            ui.input_radio_buttons('RecentHospitalization','Recent Hospitalization:',[0,1],inline=True),
-            ui.input_radio_buttons('ICUExposure','ICU exposure:',[0,1],inline=True),
+            ui.input_radio_buttons('RecentHospitalization','Recent Hospitalization:',{0:'No',1:'Yes'},inline=True),
             ui.input_radio_buttons('MedVsSurgAdmission','Admitting service',['Medical','Surgical'],inline=True),
             
             ui.h4('Antimicrobial exposures'),
 
-            ui.input_radio_buttons('PriorPenicillin','Prior penicillin:',[0,1],inline=True),    
-            ui.input_radio_buttons('PriorCephalosporin','Prior cephalosporin:',[0,1],inline=True),    
-            ui.input_radio_buttons('PriorCarbapenem','Prior carbapenem:',[0,1],inline=True),    
-            ui.input_radio_buttons('PriorFQ','Prior fluoroquinolone:',[0,1],inline=True),    
-            ui.input_radio_buttons('PriorAMG','Prior aminoglycoside:',[0,1],inline=True),    
-            ui.input_radio_buttons('PriorOtherAbx','Prior other class:',[0,1],inline=True), 
+            ui.input_radio_buttons('PriorPenicillin','Prior penicillin:',{0:'No',1:'Yes'},inline=True),    
+            ui.input_radio_buttons('PriorCephalosporin','Prior cephalosporin:',{0:'No',1:'Yes'},inline=True),    
+            ui.input_radio_buttons('PriorCarbapenem','Prior carbapenem:',{0:'No',1:'Yes'},inline=True),    
+            ui.input_radio_buttons('PriorFQ','Prior fluoroquinolone:',{0:'No',1:'Yes'},inline=True),    
+            ui.input_radio_buttons('PriorAMG','Prior aminoglycoside:',{0:'No',1:'Yes'},inline=True),    
+            ui.input_radio_buttons('PriorOtherAbx','Prior other class:',{0:'No',1:'Yes'},inline=True), 
 
             ui.h4('Susceptibility history'),
             
             ui.em('Referring specifically to prior ',ui.strong('gram negative'),' susceptibility.\n'),
             
-            ui.input_radio_buttons('PriorCefazolinResistance','Prior cefazolin:',prior_resistance_history,inline=True),    
-            ui.input_radio_buttons('PriorCeftriaxoneResistance','Prior ceftriaxone:',prior_resistance_history,inline=True),    
-            ui.input_radio_buttons('PriorCeftazidimeResistance','Prior ceftazidime:',prior_resistance_history,inline=True),    
-            ui.input_radio_buttons('PriorPiptazResistance','Prior piperacillin-tazobactam:',prior_resistance_history,inline=True),
+            # ui.input_radio_buttons('PriorCefazolinResistance','Prior cefazolin:',prior_resistance_history,inline=True),    
             ui.input_radio_buttons('PriorMeropenemResistance','Prior meropenem:',prior_resistance_history,inline=True),    
+            ui.input_radio_buttons('PriorPiptazResistance','Prior piperacillin-tazobactam:',prior_resistance_history,inline=True),
+            ui.input_radio_buttons('PriorCeftazidimeResistance','Prior ceftazidime:',prior_resistance_history,inline=True),    
+            ui.input_radio_buttons('PriorCeftriaxoneResistance','Prior ceftriaxone:',prior_resistance_history,inline=True),    
             ui.input_radio_buttons('PriorCiprofloxacinResistance','Prior ciprofloxacin:',prior_resistance_history,inline=True),    
-            ui.input_radio_buttons('PriorTobramycinResistance','Prior tobramycin:',prior_resistance_history,inline=True),    
-            ui.input_radio_buttons('PriorTMPSMXResistance','Prior trimethoprim-sulfamethoxazole:',prior_resistance_history,inline=True),    
+            # ui.input_radio_buttons('PriorTobramycinResistance','Prior tobramycin:',prior_resistance_history,inline=True),    
+            # ui.input_radio_buttons('PriorTMPSMXResistance','Prior trimethoprim-sulfamethoxazole:',prior_resistance_history,inline=True),    
            
             ui.input_radio_buttons('ClinicalESBL','Clinical ESBL:',[0,1],inline=True),
         ),
@@ -330,7 +329,6 @@ def server(input, output, session):
                                 input.Acquisition(),
                                 input.MedVsSurgAdmission(),
                                 input.RecentHospitalization(),
-                                input.ICUExposure(),
                                 input.ClinicalESBL(),
 
                                 input.PriorPenicillin(),
@@ -340,22 +338,20 @@ def server(input, output, session):
                                 input.PriorAMG(),
                                 input.PriorOtherAbx(),
                              
-                                input.PriorCefazolinResistance(),
-                                input.PriorCeftriaxoneResistance(),
-                                input.PriorCeftazidimeResistance(),
-                                input.PriorPiptazResistance(),
                                 input.PriorMeropenemResistance(),
+                                input.PriorPiptazResistance(),
+                                input.PriorCeftazidimeResistance(),                                
+                                input.PriorCeftriaxoneResistance(),
                                 input.PriorCiprofloxacinResistance(),
-                                input.PriorTobramycinResistance(),
-                                input.PriorTMPSMXResistance()                             
+                            
                                ],
+                               
                           index=['Hospital:',
                                  'Age:',
                                  'Sex:',
                                  'Acquisition:',
                                  'Admitting service:',
                                  'Recent hospitalization:',
-                                 'ICU exposure:',
                                  'Clinical ESBL:',
                                  
                                  'Prior penicillin:',
@@ -363,24 +359,26 @@ def server(input, output, session):
                                  'Prior carbapenem:',
                                  'Prior fluoroquinolone:',
                                  'Prior aminoglycoside:',
-                                 'Prior other antibiotic:',
-                                 
-                                 'Prior cefazolin resistance:',
-                                 'Prior ceftriaxone resistance:',
-                                 'Prior ceftazidime resistance:',
-                                 'Prior piperacillin-tazobactam resistance:',
+                                 'Prior other class:',
+
                                  'Prior meropenem resistance:',
-                                 'Prior ciprofloxacin resistance:',
-                                 'Prior tobramycin resistance:',
-                                 'Prior trimethoprim-sulfamethoxazole resistance:'
+                                 'Prior piperacillin-tazobactam resistance:',
+                                 'Prior ceftazidime resistance:',
+                                 'Prior ceftriaxone resistance:',
+                                 'Prior ciprofloxacin resistance:'
                                 ])
                                 
         df = df.rename(columns={0:'Value'})      
 
         # Replace resistance questions with susceptible/unknown/missing or nonsusceptible
         susceptibility_profile = {'0':'No previous/Unknown','1':'Susceptible','2':'Nonsusceptible'}
-        df.loc  ['Prior cefazolin resistance:':'Prior trimethoprim-sulfamethoxazole resistance:'] \
-        = df.loc['Prior cefazolin resistance:':'Prior trimethoprim-sulfamethoxazole resistance:'].replace(susceptibility_profile)
+        #df.loc  ['Prior cefazolin resistance:':'Prior trimethoprim-sulfamethoxazole resistance:'] \
+        #= df.loc['Prior cefazolin resistance:':'Prior trimethoprim-sulfamethoxazole resistance:'].replace(susceptibility_profile)
+        
+        # On 2024-03-26, cefazolin, TMPSMX, and combined piperacillin-tazobactam and tobramycin were removed
+        # Thus leading to a smaller DataFrame
+        df.loc  ['Prior meropenem resistance:':'Prior ciprofloxacin resistance:'] \
+        = df.loc['Prior meropenem resistance:':'Prior ciprofloxacin resistance:'].replace(susceptibility_profile)
         
         # Replace remainder with Yes/No
         others = {'0':'No','1':'Yes'}
