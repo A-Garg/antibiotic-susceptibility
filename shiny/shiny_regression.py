@@ -57,7 +57,7 @@ age_categories = ['<40',  '40-44','45-49','50-54','55-59',
                   '85-89','>90'
                  ]
 
-with open('age_scaler.pickle','rb') as f: age_StandardScaler = pickle.load(f)
+# with open('age_scaler.pickle','rb') as f: age_StandardScaler = pickle.load(f)
                  
 prior_resistance_history = {0:'No isolate or unknown',1:'Susceptible',2:'Nonsusceptible'}  
 
@@ -73,8 +73,7 @@ def susceptibility_outputs_f(input):
     for antibiotic in antibiotic_list:
 
         # Create a DataFrame of regression inputs that are all zeros
-        regression_inputs = ['hosp_Sunnybrook','hosp_TOH', 
-                             'age_scaled','sex_M',
+        regression_inputs = ['Age','sex_M',
                              
                              'acquisition_ICU','acquisition_ward',
                              'adm_service_surgical','RecentHospitalization',
@@ -88,8 +87,9 @@ def susceptibility_outputs_f(input):
         df = pd.DataFrame(np.zeros(shape=(1,len(regression_inputs))),columns=regression_inputs)
 
         # Start populating the DataFrame
-        if input.Hospital()==   'Sunnybrook': df['hosp_Sunnybrook'] = 1
-        elif input.Hospital()== 'TOH':        df['hosp_TOH'] = 1
+        
+        # if input.Hospital()==   'Sunnybrook': df['hosp_Sunnybrook'] = 1
+        # elif input.Hospital()== 'TOH':        df['hosp_TOH'] = 1
         
         if input.Acquisition()=='Hospital non-ICU':
             df['acquisition_ward'] = 1
@@ -98,19 +98,34 @@ def susceptibility_outputs_f(input):
         
         warnings.simplefilter(action='ignore', category=UserWarning)
         # A match-case structure may be better here
-        if   input.Age()=='<40'  : df['age_scaled'] = age_StandardScaler.transform([[30]])
-        elif input.Age()=='40-44': df['age_scaled'] = age_StandardScaler.transform([[42.5]])
-        elif input.Age()=='45-49': df['age_scaled'] = age_StandardScaler.transform([[47.5]])
-        elif input.Age()=='50-54': df['age_scaled'] = age_StandardScaler.transform([[52.5]])
-        elif input.Age()=='55-59': df['age_scaled'] = age_StandardScaler.transform([[57.5]])
-        elif input.Age()=='60-64': df['age_scaled'] = age_StandardScaler.transform([[62.5]])
-        elif input.Age()=='65-69': df['age_scaled'] = age_StandardScaler.transform([[67.5]])
-        elif input.Age()=='70-74': df['age_scaled'] = age_StandardScaler.transform([[72.5]])
-        elif input.Age()=='75-79': df['age_scaled'] = age_StandardScaler.transform([[77.5]])
-        elif input.Age()=='80-84': df['age_scaled'] = age_StandardScaler.transform([[82.5]])
-        elif input.Age()=='85-89': df['age_scaled'] = age_StandardScaler.transform([[87.5]])
-        elif input.Age()=='>90'  : df['age_scaled'] = age_StandardScaler.transform([[96]])
+        
+        # # Scaled version of age
+        # if   input.Age()=='<40'  : df['age_scaled'] = age_StandardScaler.transform([[30]])
+        # elif input.Age()=='40-44': df['age_scaled'] = age_StandardScaler.transform([[42.5]])
+        # elif input.Age()=='45-49': df['age_scaled'] = age_StandardScaler.transform([[47.5]])
+        # elif input.Age()=='50-54': df['age_scaled'] = age_StandardScaler.transform([[52.5]])
+        # elif input.Age()=='55-59': df['age_scaled'] = age_StandardScaler.transform([[57.5]])
+        # elif input.Age()=='60-64': df['age_scaled'] = age_StandardScaler.transform([[62.5]])
+        # elif input.Age()=='65-69': df['age_scaled'] = age_StandardScaler.transform([[67.5]])
+        # elif input.Age()=='70-74': df['age_scaled'] = age_StandardScaler.transform([[72.5]])
+        # elif input.Age()=='75-79': df['age_scaled'] = age_StandardScaler.transform([[77.5]])
+        # elif input.Age()=='80-84': df['age_scaled'] = age_StandardScaler.transform([[82.5]])
+        # elif input.Age()=='85-89': df['age_scaled'] = age_StandardScaler.transform([[87.5]])
+        # elif input.Age()=='>90'  : df['age_scaled'] = age_StandardScaler.transform([[95]])
 
+        # # Unscaled version of age
+        if   input.Age()=='<40'  : df['Age'] = 30
+        elif input.Age()=='40-44': df['Age'] = 42.5
+        elif input.Age()=='45-49': df['Age'] = 47.5
+        elif input.Age()=='50-54': df['Age'] = 52.5
+        elif input.Age()=='55-59': df['Age'] = 57.5
+        elif input.Age()=='60-64': df['Age'] = 62.5
+        elif input.Age()=='65-69': df['Age'] = 67.5
+        elif input.Age()=='70-74': df['Age'] = 72.5
+        elif input.Age()=='75-79': df['Age'] = 77.5
+        elif input.Age()=='80-84': df['Age'] = 82.5
+        elif input.Age()=='85-89': df['Age'] = 87.5
+        elif input.Age()=='>90'  : df['Age'] = 95
         
         if input.SexCat()=='Male': df['sex_M'] = 1
         if input.MedVsSurgAdmission()=='Surgical': df['adm_service_surgical'] = 1
