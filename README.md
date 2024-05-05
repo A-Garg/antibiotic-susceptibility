@@ -32,6 +32,7 @@ SexCat                                     -0.4171`
 ![Ceftriaxone Output](https://user-images.githubusercontent.com/31163077/182207506-6cba5e0c-4dfa-40fc-bd01-fb316e8af6a1.png)
 
 ### Shiny implementation
-Reactive version at: https://akhilgarg.shinyapps.io/model/
+Reactive and most recent version at: https://akhilgarg.shinyapps.io/model/
+
 ![image](https://github.com/A-Garg/antibiotic-susceptibility/assets/31163077/b02a7519-8e3d-4c82-93d5-aac742101e46)
 
