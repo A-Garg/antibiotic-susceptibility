@@ -196,7 +196,7 @@ def susceptibility_outputs_f(input):
             elif int(input['Prior'+antibiotic+'Resistance']())==2:
                 df[antibiotic+'Resistance_nonsusceptible'] = 1
             
-        with open(antibiotic+'.pickle','rb') as f:
+        with open(antibiotic+'_Sunnybrook.pickle','rb') as f:
             reg = pickle.load(f)
                 
         susceptibility_outputs.append((antibiotic,reg.predict_proba(df)[0][0]*100))
@@ -206,8 +206,8 @@ def susceptibility_outputs_f(input):
     df = df.rename(columns={0:'Antibiotic',1:'Predicted susceptibility (%)'})
 
     # Rename certain antibiotics
-    df = df.replace('Piptaz_or_Tobramycin','Pip/Tazo+Tobramycin')
-    df = df.replace('Piptaz','Pip/Tazo')    
+    df = df.replace('Piptaz_or_Tobramycin','PipTazo+Tobramycin')
+    df = df.replace('Piptaz','PipTazo')    
         
     return df
                  
