@@ -4,7 +4,7 @@ Creating a model of antimicrobial susceptibility based on local risk factors
 ## Files
 
 ### iPython notebooks
-* `antimicrobial_imputation.ipynb`: Uses imputation rules to fill in antimicrobial susceptibility patterns (e.g. methicillin-susceptible *S. aureus* should also be susceptible to piperacillin-tazobactam).
+* `imputation.ipynb`: Uses imputation rules to fill in antimicrobial susceptibility patterns (e.g. methicillin-susceptible *S. aureus* should also be susceptible to piperacillin-tazobactam).
 * `regression.ipynb`: Creates logistic regression models for antibiotic susceptibility, and saves them in [pickle](https://docs.python.org/3/library/pickle.html) files.
 
 ### Shiny Folders
