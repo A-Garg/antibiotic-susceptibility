@@ -41,8 +41,6 @@ age_categories = ['<40',  '40-44','45-49','50-54','55-59',
                   '60-64','65-69','70-74','75-79','80-84',
                   '85-89','>90'
                  ]
-
-# with open('age_scaler.pickle','rb') as f: age_StandardScaler = pickle.load(f)
                  
 prior_resistance_history = {0:'No isolate or unknown',1:'Susceptible',2:'Nonsusceptible'}  
 
@@ -72,9 +70,6 @@ def susceptibility_outputs_f(input):
         df = pd.DataFrame(np.zeros(shape=(1,len(regression_inputs))),columns=regression_inputs)
 
         # Start populating the DataFrame
-        
-        # if input.Hospital()==   'Sunnybrook': df['hosp_Sunnybrook'] = 1
-        # elif input.Hospital()== 'TOH':        df['hosp_TOH'] = 1
         
         if input.Acquisition()=='Hospital non-ICU':
             df['acquisition_ward'] = 1
@@ -165,7 +160,7 @@ def susceptibility_outputs_f(input):
             elif int(input['Prior'+antibiotic+'Resistance']())==2:
                 df[antibiotic+'Resistance_nonsusceptible'] = 1
             
-        with open(antibiotic+'_Sunnybrook.pickle','rb') as f:
+        with open(antibiotic+'_'+input.Hospital()+'.pickle','rb') as f:
             reg = pickle.load(f)
                 
         susceptibility_outputs.append((antibiotic,reg.predict_proba(df)[0][0]*100))
@@ -190,8 +185,9 @@ app_ui = ui.page_fluid(
             ui.h3('Input'),
             
             ui.card(
-                ui.input_radio_buttons('Hospital','Hospital: currently pending data from TOH and Trillium, so will not affect output',
-                                      ['Sunnybrook','TOH','Trillium'],inline=True)
+                ui.input_radio_buttons('Hospital','Hospital:',
+                                      # ['Sunnybrook','TOH','Trillium'],inline=True) #replace this line when Trillium data is available
+                                      ['Sunnybrook','TOH'],inline=True)
             ),
             
             ui.card(
