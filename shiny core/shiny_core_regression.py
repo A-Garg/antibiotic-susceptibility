@@ -257,24 +257,32 @@ app_ui = ui.page_fluid(
                 ),
                 'Clinical (non-screening culture) for ESBL within 3 days to 12 months prior to index culture collection date',
             ),
+            open='open' # Keep sidebar open by default
         ),
         
-        ui.card(
-            ui.h3('Output'),
-            ui.output_data_frame('predicted_susceptibilities'),
+        ui.card(  
+        
+            ui.layout_sidebar(
             
-            # Clinical severity cutoffs: 80% if qSOFA<=2, 90% if qSOFA=3
-            ui.input_radio_buttons('Severity','Clinical severity (affects 80 vs 90% cutoff):',{80:'qSOFA<=2',90:'qSOFA=3 or vasopressor support'},inline=True),
-            ui.output_plot('plot')
+                ui.sidebar(
+                
+                    # Clinical severity cutoffs: 80% if qSOFA<=2, 90% if qSOFA=3
+                    ui.card(
+                        ui.input_radio_buttons('Severity','Clinical severity (affects 80 vs 90% cutoff):',{80:'qSOFA<=2',90:'qSOFA=3 or vasopressor support'},inline=True),
+                    ),
+                    
+                    ui.output_plot('plot'),
+                    
+                    open='open' # Keep sidebar open by default
+                ),
+                
+                ui.output_data_frame('predicted_susceptibilities'),
+                ui.output_data_frame('input_values'),
+
+            ),
+            
         ),
         
-        ui.card(
-            ui.h3('Inputs'),
-            ui.output_data_frame('input_values'),
-            #ui.output_text_verbatim('input_values')
-        ),
-        
-        width=500 #width of the left input panel
     )
 )
 
