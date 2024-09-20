@@ -8,8 +8,8 @@ Creating a model of antimicrobial susceptibility based on local risk factors
 * `regression.ipynb`: Creates logistic regression models for antibiotic susceptibility, and saves them in [pickle](https://docs.python.org/3/library/pickle.html) files.
 
 ### Shiny Folders
-* `shiny_regression.py`: Creates an interactive visual interface for the regression model, e.g. https://akhilgarg.shinyapps.io/model/
-* `shiny_core_regression.py`: An updated version that takes advantage of new Shiny features, e.g. https://akhilgarg.shinyapps.io/model2/
+* `shiny_regression.py`: Creates an interactive visual interface for the regression model
+* `shiny_core_regression.py`: An updated version that takes advantage of new Shiny features
 
 ## Example output
 
