@@ -186,8 +186,7 @@ app_ui = ui.page_fluid(
             
             ui.card(
                 ui.input_radio_buttons('Hospital','Hospital:',
-                                      # ['Sunnybrook','TOH','Trillium'],inline=True) #replace this line when Trillium data is available
-                                      ['Sunnybrook','TOH'],inline=True)
+                                      ['Sunnybrook','TOH','Trillium'],inline=True)
             ),
             
             ui.card(
