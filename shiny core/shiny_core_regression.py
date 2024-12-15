@@ -159,7 +159,7 @@ def susceptibility_outputs_f(input):
                 df[antibiotic+'Resistance_susceptible'] = 1
             elif int(input['Prior'+antibiotic+'Resistance']())==2:
                 df[antibiotic+'Resistance_nonsusceptible'] = 1
-            
+        
         with open(antibiotic+'_'+input.Hospital()+'.pickle','rb') as f:
             reg = pickle.load(f)
                 
